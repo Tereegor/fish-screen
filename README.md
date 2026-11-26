@@ -1,26 +1,67 @@
-# fish-screen
+<div align="center">
+  <h1>fish-screen</h1>
+  <p>A rotating fish for your Linux terminal.</p>
+  <img src="assets/fish.gif" alt="Looping preview of the rotating fish bundled with fish-screen" width="200">
+  <p><a href="#quick-start">Quick start</a> · <a href="#controls">Controls</a> · <a href="#options">Options</a></p>
+</div>
 
-A rotating fish for your Linux terminal. The binary includes the animation.
+## Quick start
+
+On Linux, install Git and a current stable Rust toolchain with Cargo.
 
 ```sh
+git clone https://github.com/Tereegor/fish-screen.git
+cd fish-screen
 cargo install --locked --path .
 fish-screen
-fish-screen --mode original --fg '#ffbf69' --bg '#101418' --size 65 --speed 0.75
 ```
 
-ASCII is the default. A direct Kitty session also supports pixel mode. Press `g` to switch without restarting the loop. Press `q`, Escape or Ctrl+C to quit.
+The fish fills up to 80% of the terminal by default. The animation is built into the binary, so you can launch it from any directory. Press `q` or `Esc` to quit.
 
-Text modes blend adjacent frames at up to 60 FPS. Set the target with `--fps 1..120`. Pixel mode plays the GIF's actual frames. Use `--mode blocks` for a shaded block silhouette or `--glyph-size 1..4` to start with larger text. Large ASCII letters use Unicode Braille dots; the terminal font size stays unchanged.
+## Display modes
 
-| Keys | Action |
+| Mode | Display |
 | --- | --- |
-| Ctrl + plus / minus | Enlarge / shrink symbols without resizing the fish |
-| Ctrl + 1 / 2 | Speed up / slow down by a factor of 1.25 |
-| Ctrl + 3 / 4 / 5 | ASCII / blocks / pixels (ASCII outside Kitty) |
-| Space | Pause / resume |
+| `ascii` | Text shading with ASCII characters. At larger glyph sizes, the characters are drawn with Unicode Braille dots. |
+| `blocks` | A silhouette shaded with block characters. |
+| `original` | Pixel rendering at the GIF's frame cadence in a direct Kitty session outside tmux. Falls back to ASCII elsewhere. |
 
-If your terminal intercepts Ctrl shortcuts, use the same keys without Ctrl. The equals key also enlarges symbols.
+The text modes blend adjacent frames to smooth the motion. The animation fits the terminal using the reported character cell dimensions, with a 1:2 width-to-height fallback.
 
-The fish fits the window using the terminal's reported cell dimensions, with a 1:2 fallback.
+```sh
+fish-screen --mode blocks --glyph-size 2
+fish-screen --mode original --fg '#ffbf69' --bg '#101418' --size 65 --speed 0.75
+fish-screen --gif ./assets/fish.gif
+```
 
-Use `--size 1..100` (default 80 percent) and `--speed 0.25..4` (default 1×). Both modes use the same foreground and background colors, white on black by default. Choose black, red, green, yellow, blue, magenta, cyan, white or a quoted hex color. Pass `--gif PATH` to play another GIF.
+## Controls
+
+| Key | Action |
+| --- | --- |
+| `Space` | Pause or resume |
+| `+` / `=`, `-` | Enlarge or shrink glyphs while keeping the overall animation size |
+| `1`, `2` | Speed up or slow down by a factor of 1.25 |
+| `3`, `4`, `5` | Switch to ASCII, blocks, or pixel rendering |
+| `g` | Toggle pixel rendering in Kitty |
+| `q`, `Esc`, `Ctrl+C` | Quit |
+
+The size, speed and mode keys also accept `Ctrl` if the terminal passes the shortcut through.
+
+## Options
+
+| Flag | Default | What it changes |
+| --- | --- | --- |
+| `--gif PATH` | Built-in fish | Play a GIF from disk |
+| `--mode MODE` | `ascii` | Start in `ascii`, `blocks`, or `original` mode |
+| `--fg COLOR` | `white` | Foreground color |
+| `--bg COLOR` | `black` | Background color |
+| `--size PERCENT` | `80` | Maximum share of the terminal's width and height, from 1 to 100 |
+| `--speed FACTOR` | `1.0` | Playback speed, from 0.25× to 4× |
+| `--fps FPS` | `60` | Target refresh rate for text rendering, from 1 to 120 |
+| `--glyph-size SIZE` | `1` | Text glyph size, from 1 to 4 |
+
+Colors accept a quoted `'#RRGGBB'` value or one of `black`, `red`, `green`, `yellow`, `blue`, `magenta`, `cyan`, and `white`.
+
+## Development
+
+Run the tests with `cargo test --locked`.
